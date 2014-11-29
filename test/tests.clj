@@ -45,8 +45,7 @@
         lines (get statement :lines)
         new-release (nth lines 0)
         childrens (nth lines 1)
-        regular (nth lines 2)
-        ]
+        regular (nth lines 2)]
     (is (= 15.5 (get statement :total-price)))
     (is (= 4 (get statement :total-points)))
 
