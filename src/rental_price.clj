@@ -12,11 +12,10 @@
 (defn- new-release-strategy [days-rented]
   (* 3.0 days-rented))
 
-(defn- get-strategy-for [rent-type]
-  (case rent-type
-    "REGULAR" regular-strategy
-    "CHILDRENS" childrens-strategy
-    "NEW_RELEASE" new-release-strategy))
+(def ^:private strategies
+  {:regular     regular-strategy
+   :childrens   childrens-strategy
+   :new-release new-release-strategy})
 
-(defn calculate [rental]
-  ((get-strategy-for (get rental :type)) (get rental :days)))
+(defn calculate [movie-type days-rented]
+  ((strategies movie-type) days-rented))

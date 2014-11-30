@@ -1,10 +1,15 @@
-(ns tests
-  (:use clojure.test statement))
+(ns statement-tests
+  (:use clojure.test statement)
+  (:require movie))
+
+(def regular-movie ((movie/create {:title "Regular Movie" :type :regular}) :id))
+(def childrens-movie ((movie/create {:title "Children's Movie" :type :childrens}) :id))
+(def new-release ((movie/create {:title "New Release" :type :new-release}) :id))
 
 (deftest regular-rental
-  (let [one-day (statement/make-line {:type "REGULAR" :days 1})
-        two-days (statement/make-line {:type "REGULAR" :days 2})
-        three-days (statement/make-line {:type "REGULAR" :days 3})]
+  (let [one-day (statement/make-line {:movie-id regular-movie :days 1})
+        two-days (statement/make-line {:movie-id regular-movie :days 2})
+        three-days (statement/make-line {:movie-id regular-movie :days 3})]
     (is (= 2.0 (get one-day :price)))
     (is (= 1 (get one-day :points)))
 
@@ -15,9 +20,9 @@
     (is (= 1 (get three-days :points)))))
 
 (deftest childrens-rental
-  (let [one-day (statement/make-line {:type "CHILDRENS" :days 1})
-        three-days (statement/make-line {:type "CHILDRENS" :days 3})
-        four-days (statement/make-line {:type "CHILDRENS" :days 4})]
+  (let [one-day (statement/make-line {:movie-id childrens-movie :days 1})
+        three-days (statement/make-line {:movie-id childrens-movie :days 3})
+        four-days (statement/make-line {:movie-id childrens-movie :days 4})]
     (is (= 1.5 (get one-day :price)))
     (is (= 1 (get one-day :points)))
 
@@ -28,9 +33,9 @@
     (is (= 1 (get four-days :points)))))
 
 (deftest new-release-rental
-  (let [one-day (statement/make-line {:type "NEW_RELEASE" :days 1})
-        two-days (statement/make-line {:type "NEW_RELEASE" :days 2})
-        three-days (statement/make-line {:type "NEW_RELEASE" :days 3})]
+  (let [one-day (statement/make-line {:movie-id new-release :days 1})
+        two-days (statement/make-line {:movie-id new-release :days 2})
+        three-days (statement/make-line {:movie-id new-release :days 3})]
     (is (= 3.0 (get one-day :price)))
     (is (= 1 (get one-day :points)))
 
@@ -41,7 +46,7 @@
     (is (= 2 (get three-days :points)))))
 
 (deftest complete-statement
-  (let [statement (statement/make (list {:type "NEW_RELEASE" :days 3} {:type "CHILDRENS" :days 4} {:type "REGULAR" :days 3}))
+  (let [statement (statement/make (list {:movie-id new-release :days 3} {:movie-id childrens-movie :days 4} {:movie-id regular-movie :days 3}))
         lines (get statement :lines)
         new-release (nth lines 0)
         childrens (nth lines 1)
@@ -58,4 +63,4 @@
     (is (= 3.5 (get regular :price)))
     (is (= 1 (get regular :points)))))
 
-(run-all-tests)
+(run-tests 'statement-tests)
