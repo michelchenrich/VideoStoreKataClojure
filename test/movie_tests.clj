@@ -57,10 +57,12 @@
     (assert-response-error (update movie) error)))
 
 (deftest validations-upon-update
-  (test-input-validaitons assert-update-error)
+  (testing "Empty structure"
+    (assert-response-error (update nil) "No movie found for the specified ID"))
   (testing "No id field"
     (assert-response-error (update {:title "something" :type :regular}) "No movie found for the specified ID"))
   (testing "Id does not exist"
-    (assert-response-error (update {:id "does-not-exist" :title "something" :type :regular}) "No movie found for the specified ID")))
+    (assert-response-error (update {:id "does-not-exist" :title "something" :type :regular}) "No movie found for the specified ID"))
+  (test-input-validaitons assert-update-error))
 
 (run-tests 'movie-tests)

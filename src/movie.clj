@@ -15,7 +15,7 @@
   (and (is_title_valid? (movie :title))
        (is_type_valid? (movie :type))))
 
-(defn- get_error [movie]
+(defn- get_error_for [movie]
   (cond
     (not (is_title_valid? (movie :title))) "Title must be filled"
     (not (is_type_valid? (movie :type))) "Type must be \"Regular\", \"Children's\" or \"New Release\""))
@@ -27,26 +27,33 @@
 
 (def ^:private movie-gateway (gateway/make))
 
-(defn create [movie]
-  (let [movie (safeguard movie)
-        response {:id nil :error nil}]
+(defn- return-error [error]
+  {:error error})
+
+(defn- give-new-id [movie]
+  (let [created-id ((movie-gateway :next-id))]
+    (assoc movie :id created-id)))
+
+(defn- save [movie]
+  ((movie-gateway :save) movie)
+  {:id (movie :id)})
+
+(defn- change [movie]
+  (let [movie (safeguard movie)]
     (if (is_valid? movie)
-      (let [created-id ((movie-gateway :next-id))
-            movie (assoc movie :id created-id)]
-        ((movie-gateway :save) movie)
-        (assoc response :id (movie :id)))
-      (assoc response :error (get_error movie)))))
+      (save movie)
+      (return-error (get_error_for movie)))))
+
+(defn create [movie]
+  (change (give-new-id movie)))
 
 (defn- exists? [movie]
-  ((movie-gateway :has-id?) (movie :id)))
+  (and (not (nil? movie))
+       ((movie-gateway :has-id?) (movie :id))))
 
 (defn update [movie]
-  (let [movie (safeguard movie)
-        response {:id nil :error nil}]
-    (if (exists? movie)
-      (if (is_valid? movie)
-        ((movie-gateway :save) movie)
-        (assoc response :error (get_error movie)))
-      (assoc response :error "No movie found for the specified ID"))))
+  (if (exists? movie)
+    (change movie)
+    (return-error "No movie found for the specified ID")))
 
 (def find-by-id (movie-gateway :find))
