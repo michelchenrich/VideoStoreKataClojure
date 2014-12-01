@@ -1,4 +1,4 @@
-(ns rental-price)
+(ns rental.price)
 
 (defn- overdue-days-after [normal-rent days-rented]
   (max (- days-rented normal-rent) 0))

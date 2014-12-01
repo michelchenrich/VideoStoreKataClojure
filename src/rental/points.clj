@@ -1,4 +1,4 @@
-(ns rental-points)
+(ns rental.points)
 
 (defn- default-strategy [days-rented]
   1)
