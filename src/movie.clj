@@ -30,19 +30,19 @@
 (defn- return-error [error]
   {:error error})
 
-(defn- give-new-id [movie]
-  (let [created-id ((movie-gateway :next-id))]
-    (assoc movie :id created-id)))
-
-(defn- save [movie]
+(defn- return-saved [movie]
   ((movie-gateway :save) movie)
   {:id (movie :id)})
 
 (defn- change [movie]
   (let [movie (safeguard movie)]
     (if (is_valid? movie)
-      (save movie)
+      (return-saved movie)
       (return-error (get_error_for movie)))))
+
+(defn- give-new-id [movie]
+  (let [created-id ((movie-gateway :next-id))]
+    (assoc movie :id created-id)))
 
 (defn create [movie]
   (change (give-new-id movie)))
